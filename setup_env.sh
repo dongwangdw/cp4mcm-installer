@@ -10,10 +10,10 @@ export LOGFILE="$LOGDIR/install.log"
 # GLOBAL
 # You shouldn't need to modify these if you don't want to.
 # Just make sure you have exported the $ENTITLED_REGISTRY_KEY
-#    
+#
 # ex. export ENTITLED_REGISTRY_KEY="YOUR ENTITLEMENT KEY"
 ##################################################################
-if [ -z "${ENTITLED_REGISTRY_KEY}" ]; then 
+if [ -z "${ENTITLED_REGISTRY_KEY}" ]; then
   echo "You must export the ENTITLED_REGISTRY_KEY environment variable prior to running."; exit 999;
 fi
 
@@ -50,7 +50,7 @@ export CP4MCM_FILE_STORAGECLASS="${CP4MCM_FILE_STORAGECLASS:-}"
 #
 # Cloud Pak Modules to enable
 #
-export CP4MCM_RHACM_ENABLED="${CP4MCM_RHACM_ENABLED:-false}"
+export CP4MCM_RHACM_ENABLED="${CP4MCM_RHACM_ENABLED:-true}"
 export CP4MCM_INFRASTRUCTUREMANAGEMENT_ENABLED="${CP4MCM_INFRASTRUCTUREMANAGEMENT_ENABLED:-true}"
 export CP4MCM_MONITORING_ENABLED="${CP4MCM_MONITORING_ENABLED:-true}"
 
@@ -82,7 +82,7 @@ if [ -z BAD_SC ]; then
   echo "One or more of your storage classes do ot exists. Please verify your storage configuration and retry."
   echo " Block Storage      = $CP4MCM_BLOCK_STORAGECLASS"
   echo " File Storage class = $CP4MCM_FILE_STORAGECLASS"
-  if [ -z $CP4MCM_FILE_GID_STORAGECLASS ]; then
+  if [ -z "$CP4MCM_FILE_GID_STORAGECLASS" ]; then
     echo " File Storage GID class = $CP4MCM_FILE_STORAGECLASS"
   fi
   exit;

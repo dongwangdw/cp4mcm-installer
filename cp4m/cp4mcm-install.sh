@@ -16,8 +16,9 @@ log  " Module - Infra Management: Enabled = $CP4MCM_INFRASTRUCTUREMANAGEMENT_ENA
 log  " Module - Monitoring: Enabled       = $CP4MCM_MONITORING_ENABLED"
 log  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo -n "Are you sure to proceed installation with these settings [Y/N]: "
-read answer
-if [ "$answer" != "Y" -a "$answer" != "y" ]; then
+read -r answer
+if  "$answer" != "Y" -a "$answer" != "y"
+then
     echo "Abort!"
     exit 99
 fi
@@ -35,12 +36,12 @@ fi
 #
 # Create Operator Namespace
 #
-oc new-project $CP4MCM_NAMESPACE
+oc new-project "$CP4MCM_NAMESPACE"
 
 #
 # Create entitled registry secret
 #
-oc create secret docker-registry $ENTITLED_REGISTRY_SECRET --docker-username=cp --docker-password=$ENTITLED_REGISTRY_KEY --docker-email=$DOCKER_EMAIL --docker-server=$ENTITLED_REGISTRY -n $CP4MCM_NAMESPACE
+oc create secret docker-registry "$ENTITLED_REGISTRY_SECRET" --docker-username=cp --docker-password="$ENTITLED_REGISTRY_KEY" --docker-email=$DOCKER_EMAIL --docker-server=$ENTITLED_REGISTRY -n $CP4MCM_NAMESPACE
 
 #
 # Create Catalog Sources
@@ -241,13 +242,13 @@ EOF
 if [[ "$CP4MCM_MONITORING_ENABLED" == "true" ]];
 then
 log "Adding Monitoring Storage Config to Installation"
-oc patch installation.orchestrator.management.ibm.com ibm-management -n $CP4MCM_NAMESPACE --type=json -p="[
+oc patch installation.orchestrator.management.ibm.com ibm-management -n "$CP4MCM_NAMESPACE" --type=json -p="[
  {"op": "test",
   "path": "/spec/pakModules/1/name",
   "value": "monitoring" },
  {"op": "replace",
   "path": "/spec/pakModules/1/config/0/spec",
-  "value": 
+  "value":
     {
       "monitoringDeploy": {
         "cnmonitoringimagesource": {
@@ -285,7 +286,7 @@ oc patch installation.orchestrator.management.ibm.com ibm-management -n $CP4MCM_
 # Enable the Monitoring Module
 #
 log "Enabling Monitoring Module"
-oc patch installation.orchestrator.management.ibm.com ibm-management -n $CP4MCM_NAMESPACE --type=json -p='[
+oc patch installation.orchestrator.management.ibm.com ibm-management -n "$CP4MCM_NAMESPACE" --type=json -p='[
  {"op": "test",
   "path": "/spec/pakModules/1/name",
   "value": "monitoring" },
@@ -305,16 +306,16 @@ fi
 if [[ "$CP4MCM_INFRASTRUCTUREMANAGEMENT_ENABLED" == "true" ]];
 then
 
-if [ $ROKS != "true" ]; 
-then 
+if [ $ROKS != "true" ];
+then
 log "Adding CAM Config to Installation (ROKS = false)";
-oc patch installation.orchestrator.management.ibm.com ibm-management -n $CP4MCM_NAMESPACE --type=json -p="[
+oc patch installation.orchestrator.management.ibm.com ibm-management -n "$CP4MCM_NAMESPACE" --type=json -p="[
  {"op": "test",
   "path": "/spec/pakModules/0/name",
   "value": "infrastructureManagement" },
  {"op": "add",
   "path": "/spec/pakModules/0/config/3/spec",
-  "value": 
+  "value":
         { "manageservice": {
             "camMongoPV": {"persistence": { "storageClassName": $CP4MCM_BLOCK_STORAGECLASS, "accessMode": "ReadWriteOnce"}},
             "camTerraformPV": {"persistence": { "storageClassName": $CP4MCM_FILE_GID_STORAGECLASS}},
@@ -330,13 +331,13 @@ else
 # Updating Installation config with CAM config with ROKS.
 #
 log "Adding CAM Config to Installation (ROKS = $ROKS)"
-oc patch installation.orchestrator.management.ibm.com ibm-management -n $CP4MCM_NAMESPACE --type=json -p="[
+oc patch installation.orchestrator.management.ibm.com ibm-management -n "$CP4MCM_NAMESPACE" --type=json -p="[
  {"op": "test",
   "path": "/spec/pakModules/0/name",
   "value": "infrastructureManagement" },
  {"op": "add",
   "path": "/spec/pakModules/0/config/3/spec",
-  "value": 
+  "value":
         { "manageservice": {
             "camMongoPV": {"persistence": { "storageClassName": $CP4MCM_FILE_GID_STORAGECLASS}},
             "camTerraformPV": {"persistence": { "storageClassName": $CP4MCM_FILE_GID_STORAGECLASS}},
@@ -356,7 +357,7 @@ fi
 # Enable Infrastructure Management Module
 #
 log "Enabling the IM Module in the  Installation"
-oc patch installation.orchestrator.management.ibm.com ibm-management -n $CP4MCM_NAMESPACE --type=json -p='[
+oc patch installation.orchestrator.management.ibm.com ibm-management -n "$CP4MCM_NAMESPACE" --type=json -p='[
  {"op": "test",
   "path": "/spec/pakModules/0/name",
   "value": "infrastructureManagement" },
@@ -381,7 +382,7 @@ status
 #
 # Print out the route for RHACM access
 #
-if [[ "$CP4MCM_RHACM_ENABLED" == "true" ]]; 
+if [[ "$CP4MCM_RHACM_ENABLED" == "true" ]];
 then
   rhacm_route
 fi

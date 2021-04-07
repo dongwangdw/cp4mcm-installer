@@ -2,20 +2,20 @@
 
 source lib/functions.sh
 
-YOUR_CLIENT_ID=`echo There is a huge white elephant in LA zoo | base64`
-YOUR_CLIENT_SECRET=`echo 12345678901234567890123456789012345 | base64`
-YOUR_CP4MCM_ROUTE=`oc -n ibm-common-services get route cp-console --template '{{.spec.host}}'`
-YOUR_IM_HTTPD_ROUTE=`echo $YOUR_CP4MCM_ROUTE |sed s/cp-console/inframgmtinstall/`
-CP_PASSWORD=`oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d`
+YOUR_CLIENT_ID=$(echo There is a huge white elephant in LA zoo | base64)
+YOUR_CLIENT_SECRET=$(echo 12345678901234567890123456789012345 | base64)
+YOUR_CP4MCM_ROUTE=$(oc -n ibm-common-services get route cp-console --template '{{.spec.host}}')
+YOUR_IM_HTTPD_ROUTE=$(echo $YOUR_CP4MCM_ROUTE |sed s/cp-console/inframgmtinstall/)
+CP_PASSWORD=$(oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
 
-log YOUR_CLIENT_ID = $YOUR_CLIENT_ID
-log YOUR_CLIENT_SECRET = $YOUR_CLIENT_SECRET
-log YOUR_CP4MCM_ROUTE = $YOUR_CP4MCM_ROUTE
-log YOUR_IM_HTTPD_ROUTE = $YOUR_IM_HTTPD_ROUTE
-log CP_PASSWORD = $CP_PASSWORD
-log ENTITLED_REGISTRY_SECRET = $ENTITLED_REGISTRY_SECRET
+log YOUR_CLIENT_ID = "$YOUR_CLIENT_ID"
+log YOUR_CLIENT_SECRET = "$YOUR_CLIENT_SECRET"
+log YOUR_CP4MCM_ROUTE = "$YOUR_CP4MCM_ROUTE"
+log YOUR_IM_HTTPD_ROUTE = "$YOUR_IM_HTTPD_ROUTE"
+log CP_PASSWORD = "$CP_PASSWORD"
+log ENTITLED_REGISTRY_SECRET = "$ENTITLED_REGISTRY_SECRET"
 
-execlog cloudctl login -a $YOUR_CP4MCM_ROUTE --skip-ssl-validation -u admin -p $CP_PASSWORD -n ibm-common-services
+execlog cloudctl login -a "$YOUR_CP4MCM_ROUTE" --skip-ssl-validation -u admin -p "$CP_PASSWORD" -n ibm-common-services
 
 #
 # Register IAM OAUTH client

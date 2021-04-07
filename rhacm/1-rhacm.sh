@@ -9,13 +9,13 @@ fi
 #
 # Create Operator Namespace
 #
-oc new-project $RHACM_NAMESPACE
+oc new-project "$RHACM_NAMESPACE"
 
 #
 # Create RH pull secret
 #
 if [ "${RED_HAT_PULL_SECRET_PATH}" ]; then 
-  oc create secret generic $RHACM_SECRET_NAME -n $RHACM_NAMESPACE --from-file=.dockerconfigjson=$RED_HAT_PULL_SECRET_PATH --type=kubernetes.io/dockerconfigjson
+  oc create secret generic "$RHACM_SECRET_NAME" -n "$RHACM_NAMESPACE" --from-file=.dockerconfigjson="$RED_HAT_PULL_SECRET_PATH" --type=kubernetes.io/dockerconfigjson
 fi
 
 #

@@ -10,7 +10,7 @@ function log {
 
 function cssstatus {
     for ((time=1;time<60;time++)); do
-        WC=`oc get css --no-headers=true | grep -v "Running\|Succeeded" | wc -l`
+        WC=$(oc get css --no-headers=true | grep -v "Running\|Succeeded" | wc -l)
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         echo "Waiting for installation to complete.. retry ($time of 60)(Pods remaining = $WC)"
         echo ""
@@ -28,7 +28,7 @@ function rhacmstatus {
     # Sleep until the operator is running
     COUNT=0;
     for ((time=1;time<60;time++)); do
-        WC=`oc get multiclusterhub multiclusterhub -o=jsonpath='{.status.phase}' | grep 'Running' | wc -l`
+        WC=$(oc get multiclusterhub multiclusterhub -o=jsonpath='{.status.phase}' | grep 'Running' | wc -l)
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         echo "Waiting for operator to change status to Running.. retry ($time of 60)(Consecutive tries $COUNT/5)"
         echo ""
@@ -53,7 +53,7 @@ function status {
     COUNT=0;
     for ((time=1;time<60;time++)); do
         # Added gateway-kong to the exclusion due to bug on ROKS.
-        WC=`oc get po --no-headers=true -A | grep -v 'Running\|Completed\|gateway-kong\|selenium\|sre-bastion' | grep 'kube-system\|ibm-common-services\|management-infrastructure-management\|management-monitoring\|management-operations\|management-security-services' | wc -l`
+        WC=$(oc get po --no-headers=true -A | grep -v 'Running\|Completed\|gateway-kong\|selenium\|sre-bastion' | grep 'kube-system\|ibm-common-services\|management-infrastructure-management\|management-monitoring\|management-operations\|management-security-services' | wc -l)
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         echo "Waiting for pods to start.. retry ($time of 60)(Pods remaining = $WC)(Consecutive tries $COUNT/3)"
         echo ""
@@ -74,11 +74,11 @@ function status {
 
 function cscred {
     # Get the CP Route
-    YOUR_CP4MCM_ROUTE=`oc -n ibm-common-services get route cp-console --template '{{.spec.host}}'`
+    YOUR_CP4MCM_ROUTE=$(oc -n ibm-common-services get route cp-console --template '{{.spec.host}}')
 
     # Get the CP user/password
-    CP_USER=`oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d`
-    CP_PASSWORD=`oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d`
+    CP_USER=$(oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
+    CP_PASSWORD=$(oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
 
     log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     log "Installation complete."
@@ -90,7 +90,7 @@ function cscred {
 }
 
 function rhacm_route {
-    RHACM_ROUTE=`oc get route -n $RHACM_NAMESPACE multicloud-console --template '{{.spec.host}}'`
+    RHACM_ROUTE=$(oc get route -n "$RHACM_NAMESPACE" multicloud-console --template '{{.spec.host}}')
     log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     log "RHACM installed. You can access it at:"
     log "- URL: https://$RHACM_ROUTE"
@@ -134,13 +134,13 @@ function progress-bar {
 
 function execlog {
     log "Executing command: $@"
-    $@ | tee -a $LOGFILE
+    $@ | tee -a "$LOGFILE"
 }
 
 function cclogin {
-    YOUR_CP4MCM_ROUTE=`oc -n ibm-common-services get route cp-console --template '{{.spec.host}}'`
-    CP_PASSWORD=`oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d`
-    execlog cloudctl login -a $YOUR_CP4MCM_ROUTE --skip-ssl-validation -u admin -p $CP_PASSWORD -n default
+    YOUR_CP4MCM_ROUTE=$(oc -n ibm-common-services get route cp-console --template '{{.spec.host}}')
+    CP_PASSWORD=$(oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
+    execlog cloudctl login -a "$YOUR_CP4MCM_ROUTE" --skip-ssl-validation -u admin -p "$CP_PASSWORD" -n default
 }
 
 function detect_storage_classes {
@@ -153,8 +153,8 @@ function detect_storage_classes {
         #
         # Gather storage class information.
         #
-        K8S_NODE=`oc get nodes | grep Ready | cut -d " " -f 1  | head -1`
-        IBMROKS=`oc get nodes $K8S_NODE --template '{{.metadata.labels}}' | grep ibm-cloud.kubernetes.io`
+        K8S_NODE=$(oc get nodes | grep Ready | cut -d " " -f 1  | head -1)
+        IBMROKS=$(oc get nodes "$K8S_NODE" --template '{{.metadata.labels}}' | grep ibm-cloud.kubernetes.io)
 
         #
         # The cluster is not running on ROKS then we will assume it is using OCS
