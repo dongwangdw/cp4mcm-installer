@@ -7,9 +7,9 @@ source lib/functions.sh
 #
 # Add admin user to LDAP schema
 #
-YOUR_CP4MCM_ROUTE=`oc -n ibm-common-services get route cp-console --template '{{.spec.host}}'`
-CP_PASSWORD=`oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d`
-execlog cloudctl login -a $YOUR_CP4MCM_ROUTE --skip-ssl-validation -u admin -p $CP_PASSWORD -n default
+YOUR_CP4MCM_ROUTE=$(oc -n ibm-common-services get route cp-console --template '{{.spec.host}}')
+CP_PASSWORD=$(oc -n ibm-common-services get secret platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
+execlog cloudctl login -a "$YOUR_CP4MCM_ROUTE" --skip-ssl-validation -u admin -p "$CP_PASSWORD" -n default
 
 #
 # Create LDAP Resources
@@ -83,4 +83,4 @@ execlog cloudctl iam resource-add operations -r "crn:v1:icp:private:k8:mycluster
 # 
 log "Listing out the users/groups that have been imported."
 POD=$(oc -n ldap get pod -l app=ldap -o jsonpath="{.items[0].metadata.name}")
-execlog oc -n ldap exec $POD -- ldapsearch -LLL -x -H ldap:// -D "cn=admin,dc=ibm,dc=com" -w Passw0rd -b "dc=ibm,dc=com" "(memberOf=cn=operations,ou=groups,dc=ibm,dc=com)" dn
+execlog oc -n ldap exec "$POD" -- ldapsearch -LLL -x -H ldap:// -D "cn=admin,dc=ibm,dc=com" -w Passw0rd -b "dc=ibm,dc=com" "(memberOf=cn=operations,ou=groups,dc=ibm,dc=com)" dn

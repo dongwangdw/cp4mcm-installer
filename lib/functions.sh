@@ -14,8 +14,8 @@ function cssstatus {
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         echo "Waiting for installation to complete.. retry ($time of 60)(Pods remaining = $WC)"
         echo ""
-        oc get css | grep -v "Running" 
-        
+        oc get css | grep -v "Running"
+
         if [ $WC -le 0 ]; then
             break
         fi
@@ -58,7 +58,7 @@ function status {
         echo "Waiting for pods to start.. retry ($time of 60)(Pods remaining = $WC)(Consecutive tries $COUNT/3)"
         echo ""
         oc get po -A | grep -v 'Running\|Completed' | grep 'kube-system\|ibm-common-services\|management-infrastructure-management\|management-monitoring\|management-operations\|management-security-services'
-        
+
         if [ $WC -le 0 ]; then
             ((COUNT++))
 
@@ -103,7 +103,7 @@ function progress-bar {
   local duration
   local columns
   local space_available
-  local fit_to_screen  
+  local fit_to_screen
   local space_reserved
 
   space_reserved=6   # reserved width for the percentage value
@@ -111,11 +111,11 @@ function progress-bar {
   columns=$(tput cols)
   space_available=$(( columns-space_reserved ))
 
-  if (( duration < space_available )); then 
-  	fit_to_screen=1; 
-  else 
-    fit_to_screen=$(( duration / space_available )); 
-    fit_to_screen=$((fit_to_screen+1)); 
+  if (( duration < space_available )); then
+  	fit_to_screen=1;
+  else
+    fit_to_screen=$(( duration / space_available ));
+    fit_to_screen=$((fit_to_screen+1));
   fi
 
   already_done() { for ((done=0; done<(elapsed / fit_to_screen) ; done=done+1 )); do printf "▇"; done }
@@ -198,4 +198,28 @@ function validate_storageclass {
 
 function entitled_registry_test {
     echo "Testing the entitled registry key provided by pulling a sample image."
+}
+
+## Check if pod run sucessfully.
+## @ wait_pod_run pod_name namespace time_to_check(seconds)
+function wait_pod_run {
+    pod_name="$1"
+    namespace="$2"
+    sleep_time="$3"
+    for((;;));do
+        status=$(oc get pods -n "$namespace" | grep "$pod_name" | awk -F" " '{print $3}')
+        if [ "$status" == "Running" ]
+        then
+            break
+        fi
+
+        if [ "$sleep_time" -gt 0 ]
+        then
+            sleep_time=$((sleep_time-10))
+            sleep 10s
+        else
+            echo "pods does not run after $3 seconds."
+            break
+        fi
+    done
 }
